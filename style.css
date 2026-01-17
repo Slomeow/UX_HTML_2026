@@ -14,8 +14,12 @@ h1, h2{
 
 h3{
     color: rgb(139, 129, 255);
-    text-align: left;
+    text-align: center;
 }
+ul{
+    color: rgb(255, 216, 0);
+    font-size: 18px;
+    line-height: 1.5;}
 
 main{
     background-color: rgb(74, 46, 33);
