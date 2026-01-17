@@ -1,5 +1,9 @@
+let canvas
+
 function setup() {
-    createCanvas(window.innerWidth, 400);
+    canvas = createCanvas(window.innerWidth, window.innerHeight);
+    canvas.position(0,0);
+    canvas.style('z-index', '-1');
     background(150, 50, 10);
 }
 
