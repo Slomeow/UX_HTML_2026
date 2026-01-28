@@ -6,6 +6,7 @@ let offsetY = 0;
 
 const NUM_ZONES = 10;
 const NUM_ITEMS = 5;
+const ITEM_IMAGES = ['Images/IMG_5369.png', 'Images/Chosen.png', 'Images/MartinGoesOutsideScan.png', 'Images/CirCat1.png'];
 
 function initializeGame() {
     const zonesGrid = document.getElementById('zonesGrid');
@@ -47,9 +48,14 @@ function initializeGame() {
         usedZoneIndices.push(randomZoneIndex);
         const zone = dropZones[randomZoneIndex];
         
-        const item = document.createElement('div');
+        // Cycle through images for each item
+        const imageIndex = i % ITEM_IMAGES.length;
+        const imagePath = ITEM_IMAGES[imageIndex];
+        
+        const item = document.createElement('img');
         item.className = 'draggable-item';
-        item.textContent = `Item ${i + 1}`;
+        item.src = imagePath;
+        item.alt = `Item ${i + 1}`;
         item.id = `item-${i}`;
         item.draggable = false; // We'll use mouse events instead
         
@@ -60,8 +66,11 @@ function initializeGame() {
             startX: 0,
             startY: 0
         };
+
+        zone.item = itemData;
         
-        positionItemInZone(item, zone);
+        // Position item in the center of the zone
+        positionItemInZone(zone.item.element, zone);
         
         draggableItems.push(itemData);
         itemsContainer.appendChild(item);
@@ -80,7 +89,7 @@ function positionItemInZone(itemElement, zone) {
     const zoneRect = zone.element.getBoundingClientRect();
     const itemRect = itemElement.getBoundingClientRect();
     
-    const centerX = zoneRect.left + (zoneRect.width - itemRect.width) / 2;
+    const centerX = zoneRect.width / 2 + zoneRect.left - itemRect.width / 2;
     const centerY = zoneRect.top + (zoneRect.height - itemRect.height) / 2;
     
     itemElement.style.left = centerX + 'px';
