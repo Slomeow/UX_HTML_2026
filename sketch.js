@@ -3,10 +3,30 @@ let draggableItems = [];
 let draggedItem = null;
 let offsetX = 0;
 let offsetY = 0;
+let pendingZoneForName = null; // Track which zone needs a name
 
 const NUM_ZONES = 10;
 const NUM_ITEMS = 5;
-const ITEM_IMAGES = ['Images/IMG_5369.png', 'Images/Chosen.png', 'Images/MartinGoesOutsideScan.png', 'Images/CirCat1.png'];
+const ITEM_IMAGES = ['Images/IMG_5369.png', 'Images/Chosen.png', 'Images/MartinGoesOutsideScan.png', ];
+
+// Metadata for each image
+const IMAGE_METADATA = {
+    'Images/IMG_5369.png': {
+        dimensions: '5 x 5',
+        medium: 'pixel art',
+        year: '2024'
+    },
+    'Images/Chosen.png': {
+        dimensions: '9 x 12',
+        medium: 'linocut print',
+        year: '2025'
+    },
+    'Images/MartinGoesOutsideScan.png': {
+        dimensions: '5 x 10',
+        medium: 'oil pastel',
+        year: '2025'
+    }
+};
 
 function initializeGame() {
     const zonesGrid = document.getElementById('zonesGrid');
@@ -59,12 +79,27 @@ function initializeGame() {
         item.id = `item-${i}`;
         item.draggable = false; // We'll use mouse events instead
         
+        // Get metadata for this image
+        const metadata = IMAGE_METADATA[imagePath] || {
+            dimensions: 'N/A',
+            medium: 'N/A',
+            year: 'N/A'
+        };
+        
+        // Create name label for this item
+        const itemLabel = document.createElement('div');
+        itemLabel.className = 'item-label';
+        itemLabel.id = `item-label-${i}`;
+        
         const itemData = {
             id: i,
             element: item,
+            label: itemLabel,
+            metadata: metadata,
             inZone: zone,
             startX: 0,
-            startY: 0
+            startY: 0,
+            itemName: null
         };
 
         zone.item = itemData;
@@ -74,6 +109,7 @@ function initializeGame() {
         
         draggableItems.push(itemData);
         itemsContainer.appendChild(item);
+        itemsContainer.appendChild(itemLabel);
         
         // Mark zone as occupied
         zone.occupied = true;
@@ -94,6 +130,16 @@ function positionItemInZone(itemElement, zone) {
     
     itemElement.style.left = centerX + 'px';
     itemElement.style.top = centerY + 'px';
+    
+    // Position label below the image
+    const itemData = draggableItems.find(item => item.element === itemElement);
+    if (itemData && itemData.label) {
+        const labelX = centerX + itemRect.width / 2 - itemData.label.offsetWidth / 2;
+        const labelY = centerY + itemRect.height + 5; // 5px below image
+        
+        itemData.label.style.left = labelX + 'px';
+        itemData.label.style.top = labelY + 'px';
+    }
 }
 
 function handleMouseDown(e) {
@@ -127,6 +173,16 @@ function handleMouseMove(e) {
     
     draggedItem.element.style.left = x + 'px';
     draggedItem.element.style.top = y + 'px';
+    
+    // Move label with the item
+    if (draggedItem.label) {
+        const itemRect = draggedItem.element.getBoundingClientRect();
+        const labelX = x + itemRect.width / 2 - draggedItem.label.offsetWidth / 2;
+        const labelY = y + itemRect.height + 5;
+        
+        draggedItem.label.style.left = labelX + 'px';
+        draggedItem.label.style.top = labelY + 'px';
+    }
 }
 
 function handleMouseUp(e) {
@@ -177,6 +233,9 @@ function handleMouseUp(e) {
         
         // Snap to center of zone
         positionItemInZone(draggedItem.element, droppedOnZone);
+        
+        // Show name input modal
+        showNameModal(droppedOnZone);
     } else {
         // Remove from zone if it was in one
         if (draggedItem.inZone) {
@@ -191,5 +250,66 @@ function handleMouseUp(e) {
     draggedItem = null;
 }
 
+function showNameModal(zone) {
+    pendingZoneForName = zone;
+    const modal = document.getElementById('nameModal');
+    const nameInput = document.getElementById('nameInput');
+    
+    nameInput.value = '';
+    modal.classList.remove('hidden');
+    nameInput.focus();
+}
+
+function hideNameModal() {
+    const modal = document.getElementById('nameModal');
+    modal.classList.add('hidden');
+    pendingZoneForName = null;
+}
+
+function submitName() {
+    if (!pendingZoneForName) return;
+    
+    const nameInput = document.getElementById('nameInput');
+    const name = nameInput.value.trim();
+    
+    if (name) {
+        // Store name on the item
+        if (pendingZoneForName.item) {
+            const itemData = pendingZoneForName.item;
+            itemData.itemName = name;
+            
+            // Format the label with unchangeable metadata
+            const metadata = itemData.metadata;
+            const labelText = `Title: ${name}\n${metadata.dimensions}\n${metadata.medium}\n${metadata.year}`;
+            
+            itemData.label.textContent = labelText;
+            itemData.label.style.display = 'block';
+        }
+    }
+    
+    hideNameModal();
+}
+
+// Event listeners for modal
+document.addEventListener('DOMContentLoaded', () => {
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const nameInput = document.getElementById('nameInput');
+    
+    submitBtn.addEventListener('click', submitName);
+    cancelBtn.addEventListener('click', hideNameModal);
+    
+    // Allow Enter key to submit
+    nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            submitName();
+        }
+    });
+});
+
 // Initialize the game when the page loads
-window.addEventListener('DOMContentLoaded', initializeGame);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeGame);
+} else {
+    initializeGame();
+}
