@@ -7,24 +7,41 @@ let pendingZoneForName = null; // Track which zone needs a name
 
 const NUM_ZONES = 10;
 const NUM_ITEMS = 5;
-const ITEM_IMAGES = ['Images/IMG_5369.png', 'Images/Chosen.png', 'Images/MartinGoesOutsideScan.png', ];
+const ITEM_IMAGES = ['Images/IMG_5369.png', 'Images/Chosen.png', 'Images/MartinGoesOutsideScan.png', 'Images/CirCat1.png'];
 
 // Metadata for each image
 const IMAGE_METADATA = {
     'Images/IMG_5369.png': {
         dimensions: '5 x 5',
         medium: 'pixel art',
-        year: '2024'
+        year: '2024',
+        frame: 'Images/Square_frame2.png',
+        frameWidth: '40vw',
+        frameHeight: '40vh'
     },
     'Images/Chosen.png': {
         dimensions: '9 x 12',
         medium: 'linocut print',
-        year: '2025'
+        year: '2025',
+        frame: 'Images/Portrait_frame1.png',
+        frameWidth: '25vw',
+        frameHeight: '35vh'
     },
     'Images/MartinGoesOutsideScan.png': {
         dimensions: '5 x 10',
         medium: 'oil pastel',
-        year: '2025'
+        year: '2025',
+        frame: 'Images/Portrait_frame1.png',
+        frameWidth: '16vw',
+        frameHeight: '26vh'
+    },
+    'Images/CirCat1.png': {
+        dimensions: '8 x 8',
+        medium: 'digital art',
+        year: '2025',
+        frame: 'Images/Portrait_frame1.png',
+        frameWidth: '16vw',
+        frameHeight: '26vh'
     }
 };
 
@@ -96,6 +113,9 @@ function initializeGame() {
             element: item,
             label: itemLabel,
             metadata: metadata,
+            frame: null,
+            frameOffsetX: 0,
+            frameOffsetY: 0,
             inZone: zone,
             startX: 0,
             startY: 0,
@@ -148,6 +168,12 @@ function handleMouseDown(e) {
     
     if (!draggedItem) return;
     
+    // Remove frame when picking up
+    if (draggedItem.frame) {
+        draggedItem.frame.remove();
+        draggedItem.frame = null;
+    }
+    
     // Store starting position
     draggedItem.startX = parseInt(itemElement.style.left) || 0;
     draggedItem.startY = parseInt(itemElement.style.top) || 0;
@@ -173,6 +199,12 @@ function handleMouseMove(e) {
     
     draggedItem.element.style.left = x + 'px';
     draggedItem.element.style.top = y + 'px';
+    
+    // Move frame with the item, maintaining the offset
+    if (draggedItem.frame) {
+        draggedItem.frame.style.left = (x + draggedItem.frameOffsetX) + 'px';
+        draggedItem.frame.style.top = (y + draggedItem.frameOffsetY) + 'px';
+    }
     
     // Move label with the item
     if (draggedItem.label) {
@@ -233,6 +265,9 @@ function handleMouseUp(e) {
         
         // Snap to center of zone
         positionItemInZone(draggedItem.element, droppedOnZone);
+        
+        // Create and add frame
+        createFrame(draggedItem);
         
         // Show name input modal
         showNameModal(droppedOnZone);
@@ -306,6 +341,87 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function createFrame(itemData) {
+    // Remove old frame if it exists
+    if (itemData.frame) {
+        itemData.frame.remove();
+        itemData.frame = null;
+    }
+    
+    const framePath = itemData.metadata.frame;
+    if (!framePath) return;
+    
+    const frame = document.createElement('img');
+    frame.className = 'frame-image';
+    frame.src = framePath;
+    frame.alt = 'Frame';
+    
+    // Set custom frame dimensions
+    const frameWidth = itemData.metadata.frameWidth || '16vw';
+    const frameHeight = itemData.metadata.frameHeight || '26vh';
+    frame.style.width = frameWidth;
+    frame.style.height = frameHeight;
+    
+    const itemsContainer = document.getElementById('itemsContainer');
+    itemsContainer.appendChild(frame);
+    
+    // Position frame centered with the item
+    // We need to calculate positions so both are centered at the same point
+    const itemRect = itemData.element.getBoundingClientRect();
+    const itemX = parseInt(itemData.element.style.left);
+    const itemY = parseInt(itemData.element.style.top);
+    const itemWidth = itemRect.width;
+    const itemHeight = itemRect.height;
+    
+    // Parse frame dimensions from strings like "22vw" or "32vh"
+    const frameWidthStr = frameWidth;
+    const frameHeightStr = frameHeight;
+    
+    // Convert viewport units to pixels
+    const vw = window.innerWidth / 100;
+    const vh = window.innerHeight / 100;
+    
+    let frameWidthPx = itemWidth;
+    let frameHeightPx = itemHeight;
+    
+    if (frameWidthStr.includes('vw')) {
+        frameWidthPx = parseFloat(frameWidthStr) * vw;
+    } else if (frameWidthStr.includes('px')) {
+        frameWidthPx = parseFloat(frameWidthStr);
+    }
+    
+    if (frameHeightStr.includes('vh')) {
+        frameHeightPx = parseFloat(frameHeightStr) * vh;
+    } else if (frameHeightStr.includes('px')) {
+        frameHeightPx = parseFloat(frameHeightStr);
+    }
+    
+    // Calculate offset to center frame around item
+    const offsetX = (itemWidth - frameWidthPx) / 2;
+    const offsetY = (itemHeight - frameHeightPx) / 2;
+    
+    // Store offset for later use during dragging
+    itemData.frameOffsetX = offsetX;
+    itemData.frameOffsetY = offsetY;
+    
+    frame.style.left = (itemX + offsetX) + 'px';
+    frame.style.top = (itemY + offsetY) + 'px';
+    
+    // Add to items array to track
+    itemData.frame = frame;
+    
+    // Trigger fade-in animation
+    frame.classList.add('fade-in');
+}
+
+function positionFrame(itemData) {
+    if (!itemData.frame) return;
+    
+    // Keep frame positioned behind item
+    itemData.frame.style.left = itemData.element.style.left;
+    itemData.frame.style.top = itemData.element.style.top;
+}
 
 // Initialize the game when the page loads
 if (document.readyState === 'loading') {

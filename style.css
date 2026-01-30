@@ -78,6 +78,42 @@ html, body {
     cursor: grabbing;
     opacity: 0.9;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    animation: jiggle 0.1s infinite;
+}
+
+@keyframes jiggle {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-1.5deg);
+    }
+    75% {
+        transform: rotate(1.5deg);
+    }
+}
+
+.frame-image {
+    position: fixed;
+    max-width: 50vw;
+    max-height: 50vh;
+    object-fit: contain;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 1;
+}
+
+.frame-image.fade-in {
+    animation: fadeInSlow 3s ease-in-out forwards;
+}
+
+@keyframes fadeInSlow {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 .item-label {
