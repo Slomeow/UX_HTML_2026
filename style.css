@@ -11,6 +11,22 @@ html, body {
     overflow: hidden;
 }
 
+p2 {
+    position: sticky;
+    bottom: 12vh;
+    left: 50%;
+   // transform: translateX(-50%);
+    background-color: rgba(229, 124, 140, 1);
+    padding: 20px 20px;
+    border-radius: 10px;
+    border-style: Solid;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: rgb(249, 245, 219);
+    font-size: 30px;
+    font-weight: bold;
+    z-index: 1000;
+}
+
 .container {
     width: 100vw;
     height: 100vh;
@@ -148,6 +164,20 @@ html, body {
     z-index: 10;
 }
 
+p3 {
+    bottom: 12vh;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(229, 124, 140, 0.8);
+    padding: 10px 20px;
+    border-radius: 10px;
+    border-style: dotted;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: rgb(249, 245, 219);
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 1000;
+}
 .modal {
     position: fixed;
     top: 0;
@@ -264,8 +294,29 @@ html, body {
     cursor: grab;
     pointer-events: auto;
     user-select: none;
+    transition: transform 0.1s ease;
+}
+
+.toolbar-tape:hover {
+    animation: shake 0.3s ease-in-out infinite;
 }
 
 .tape-piece:active {
     cursor: grabbing;
+    animation: none;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+        transform: translate(-1px, -1px) rotate(-2deg);
+    }
+    50% {
+        transform: translate(1px, 1px) rotate(2deg);
+    }
+    75% {
+        transform: translate(-1px, 1px) rotate(-1deg);
+    }
 }
