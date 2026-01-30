@@ -97,6 +97,13 @@ html, body {
     }
 }
 
+.pin-image {
+    position: fixed;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 5;
+}
+
 /* FRAME FUNCTIONALITY COMMENTED OUT */
 /* .frame-image {
     position: fixed;
@@ -125,8 +132,10 @@ html, body {
     position: absolute;
     background-color: rgb(249, 245, 219);
     padding: 10px;
-    border-radius: 15px;
+    border-radius: 0px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     color: rgb(229, 124, 140);
+   // font-family: 'Lonely Study', sans-serif;
     font-size: 12 px;
     font-weight: bold;
     text-align: center;

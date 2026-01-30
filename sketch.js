@@ -170,6 +170,12 @@ function handleMouseDown(e) {
     
     if (!draggedItem) return;
     
+    // Remove pin when picking up
+    if (draggedItem.pin) {
+        draggedItem.pin.remove();
+        draggedItem.pin = null;
+    }
+    
     // Remove frame when picking up
     // if (draggedItem.frame) {
     //     draggedItem.frame.remove();
@@ -268,11 +274,16 @@ function handleMouseUp(e) {
         // Snap to center of zone
         positionItemInZone(draggedItem.element, droppedOnZone);
         
+        // Create and add pin
+        createPin(draggedItem);
+        
         // Create and add frame
         // createFrame(draggedItem);
         
-        // Show name input modal
-        showNameModal(droppedOnZone);
+        // Show name input modal only if not already named
+        if (!draggedItem.hasBeenNamed) {
+            showNameModal(droppedOnZone);
+        }
     } else {
         // Remove from zone if it was in one
         if (draggedItem.inZone) {
@@ -314,6 +325,7 @@ function submitName() {
         if (pendingZoneForName.item) {
             const itemData = pendingZoneForName.item;
             itemData.itemName = name;
+            itemData.hasBeenNamed = true;
             
             // Format the label with unchangeable metadata
             const metadata = itemData.metadata;
@@ -343,6 +355,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function createPin(itemData) {
+    // Remove old pin if it exists
+    if (itemData.pin) {
+        itemData.pin.remove();
+        itemData.pin = null;
+    }
+    
+    const pin = document.createElement('img');
+    pin.className = 'pin-image';
+    pin.src = 'Images/Pin1.png';
+    pin.alt = 'Pin';
+    
+    // Set pin dimensions
+    pin.style.width = '2vw';
+    pin.style.height = '2vw';
+    
+    const itemsContainer = document.getElementById('itemsContainer');
+    itemsContainer.appendChild(pin);
+    
+    // Position pin at the top center of the item
+    const itemRect = itemData.element.getBoundingClientRect();
+    const itemX = parseInt(itemData.element.style.left);
+    const itemY = parseInt(itemData.element.style.top);
+    const itemWidth = itemRect.width;
+    
+    // Center pin horizontally on item, position at top
+    const pinX = itemX + (itemWidth / 2) - (itemWidth * 0.03 / 2); // 3vw pin centered
+    const pinY = itemY - (itemWidth * 0.03); // Pin above the item
+    
+    pin.style.left = pinX + 'px';
+    pin.style.top = pinY + 'px';
+    
+    // Add to item data to track
+    itemData.pin = pin;
+}
 
 // FRAME FUNCTIONALITY COMMENTED OUT
 // function createFrame(itemData) {
