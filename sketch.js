@@ -7,7 +7,7 @@ let offsetY = 0;
 let pendingZoneForName = null; // Track which zone needs a name
 let tapePieces = []; // Track all placed tape pieces
 
-const NUM_ZONES = 10;
+const NUM_ZONES = 15;
 const NUM_ITEMS = 5;
 const ITEM_IMAGES = ['Images/IMG_5369.png', 'Images/Chosen.png', 'Images/MartinGoesOutsideScan.png', 'Images/CirCat1.png'];
 
