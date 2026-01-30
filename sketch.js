@@ -1,9 +1,11 @@
 let dropZones = [];
 let draggableItems = [];
 let draggedItem = null;
+let draggedTape = null;
 let offsetX = 0;
 let offsetY = 0;
 let pendingZoneForName = null; // Track which zone needs a name
+let tapePieces = []; // Track all placed tape pieces
 
 const NUM_ZONES = 10;
 const NUM_ITEMS = 5;
@@ -169,10 +171,10 @@ function handleMouseDown(e) {
     if (!draggedItem) return;
     
     // Remove frame when picking up
-    if (draggedItem.frame) {
-        draggedItem.frame.remove();
-        draggedItem.frame = null;
-    }
+    // if (draggedItem.frame) {
+    //     draggedItem.frame.remove();
+    //     draggedItem.frame = null;
+    // }
     
     // Store starting position
     draggedItem.startX = parseInt(itemElement.style.left) || 0;
@@ -201,16 +203,16 @@ function handleMouseMove(e) {
     draggedItem.element.style.top = y + 'px';
     
     // Move frame with the item, maintaining the offset
-    if (draggedItem.frame) {
-        draggedItem.frame.style.left = (x + draggedItem.frameOffsetX) + 'px';
-        draggedItem.frame.style.top = (y + draggedItem.frameOffsetY) + 'px';
-    }
+    // if (draggedItem.frame) {
+    //     draggedItem.frame.style.left = (x + draggedItem.frameOffsetX) + 'px';
+    //     draggedItem.frame.style.top = (y + draggedItem.frameOffsetY) + 'px';
+    // }
     
     // Move label with the item
     if (draggedItem.label) {
         const itemRect = draggedItem.element.getBoundingClientRect();
         const labelX = x + itemRect.width / 2 - draggedItem.label.offsetWidth / 2;
-        const labelY = y + itemRect.height + 5;
+        const labelY = y + itemRect.height + 30;
         
         draggedItem.label.style.left = labelX + 'px';
         draggedItem.label.style.top = labelY + 'px';
@@ -267,7 +269,7 @@ function handleMouseUp(e) {
         positionItemInZone(draggedItem.element, droppedOnZone);
         
         // Create and add frame
-        createFrame(draggedItem);
+        // createFrame(draggedItem);
         
         // Show name input modal
         showNameModal(droppedOnZone);
@@ -315,9 +317,9 @@ function submitName() {
             
             // Format the label with unchangeable metadata
             const metadata = itemData.metadata;
-            const labelText = `Title: ${name}\n${metadata.dimensions}\n${metadata.medium}\n${metadata.year}`;
+            const labelText = `"<em>${name}</em>"<br>${metadata.dimensions}<br>${metadata.medium}<br>${metadata.year}`;
             
-            itemData.label.textContent = labelText;
+            itemData.label.innerHTML = labelText;
             itemData.label.style.display = 'block';
         }
     }
@@ -342,90 +344,162 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function createFrame(itemData) {
-    // Remove old frame if it exists
-    if (itemData.frame) {
-        itemData.frame.remove();
-        itemData.frame = null;
-    }
+// FRAME FUNCTIONALITY COMMENTED OUT
+// function createFrame(itemData) {
+//     // Remove old frame if it exists
+//     if (itemData.frame) {
+//         itemData.frame.remove();
+//         itemData.frame = null;
+//     }
+//     
+//     const framePath = itemData.metadata.frame;
+//     if (!framePath) return;
+//     
+//     const frame = document.createElement('img');
+//     frame.className = 'frame-image';
+//     frame.src = framePath;
+//     frame.alt = 'Frame';
+//     
+//     // Set custom frame dimensions
+//     const frameWidth = itemData.metadata.frameWidth || '16vw';
+//     const frameHeight = itemData.metadata.frameHeight || '26vh';
+//     frame.style.width = frameWidth;
+//     frame.style.height = frameHeight;
+//     
+//     const itemsContainer = document.getElementById('itemsContainer');
+//     itemsContainer.appendChild(frame);
+//     
+//     // Position frame centered with the item
+//     // We need to calculate positions so both are centered at the same point
+//     const itemRect = itemData.element.getBoundingClientRect();
+//     const itemX = parseInt(itemData.element.style.left);
+//     const itemY = parseInt(itemData.element.style.top);
+//     const itemWidth = itemRect.width;
+//     const itemHeight = itemRect.height;
+//     
+//     // Parse frame dimensions from strings like "22vw" or "32vh"
+//     const frameWidthStr = frameWidth;
+//     const frameHeightStr = frameHeight;
+//     
+//     // Convert viewport units to pixels
+//     const vw = window.innerWidth / 100;
+//     const vh = window.innerHeight / 100;
+//     
+//     let frameWidthPx = itemWidth;
+//     let frameHeightPx = itemHeight;
+//     
+//     if (frameWidthStr.includes('vw')) {
+//         frameWidthPx = parseFloat(frameWidthStr) * vw;
+//     } else if (frameWidthStr.includes('px')) {
+//         frameWidthPx = parseFloat(frameWidthStr);
+//     }
+//     
+//     if (frameHeightStr.includes('vh')) {
+//         frameHeightPx = parseFloat(frameHeightStr) * vh;
+//     } else if (frameHeightStr.includes('px')) {
+//         frameHeightPx = parseFloat(frameHeightStr);
+//     }
+//     
+//     // Calculate offset to center frame around item
+//     const offsetX = (itemWidth - frameWidthPx) / 2;
+//     const offsetY = (itemHeight - frameHeightPx) / 2;
+//     
+//     // Store offset for later use during dragging
+//     itemData.frameOffsetX = offsetX;
+//     itemData.frameOffsetY = offsetY;
+//     
+//     frame.style.left = (itemX + offsetX) + 'px';
+//     frame.style.top = (itemY + offsetY) + 'px';
+//     
+//     // Add to items array to track
+//     itemData.frame = frame;
+//     
+//     // Trigger fade-in animation
+//     frame.classList.add('fade-in');
+// }
+// 
+// function positionFrame(itemData) {
+//     if (!itemData.frame) return;
+//     
+//     // Keep frame positioned behind item
+//     itemData.frame.style.left = itemData.element.style.left;
+//     itemData.frame.style.top = itemData.element.style.top;
+// }
+
+// Tape functionality
+function initializeTape() {
+    const tapeTemplate = document.getElementById('tapeTemplate');
+    if (!tapeTemplate) return;
     
-    const framePath = itemData.metadata.frame;
-    if (!framePath) return;
-    
-    const frame = document.createElement('img');
-    frame.className = 'frame-image';
-    frame.src = framePath;
-    frame.alt = 'Frame';
-    
-    // Set custom frame dimensions
-    const frameWidth = itemData.metadata.frameWidth || '16vw';
-    const frameHeight = itemData.metadata.frameHeight || '26vh';
-    frame.style.width = frameWidth;
-    frame.style.height = frameHeight;
-    
-    const itemsContainer = document.getElementById('itemsContainer');
-    itemsContainer.appendChild(frame);
-    
-    // Position frame centered with the item
-    // We need to calculate positions so both are centered at the same point
-    const itemRect = itemData.element.getBoundingClientRect();
-    const itemX = parseInt(itemData.element.style.left);
-    const itemY = parseInt(itemData.element.style.top);
-    const itemWidth = itemRect.width;
-    const itemHeight = itemRect.height;
-    
-    // Parse frame dimensions from strings like "22vw" or "32vh"
-    const frameWidthStr = frameWidth;
-    const frameHeightStr = frameHeight;
-    
-    // Convert viewport units to pixels
-    const vw = window.innerWidth / 100;
-    const vh = window.innerHeight / 100;
-    
-    let frameWidthPx = itemWidth;
-    let frameHeightPx = itemHeight;
-    
-    if (frameWidthStr.includes('vw')) {
-        frameWidthPx = parseFloat(frameWidthStr) * vw;
-    } else if (frameWidthStr.includes('px')) {
-        frameWidthPx = parseFloat(frameWidthStr);
-    }
-    
-    if (frameHeightStr.includes('vh')) {
-        frameHeightPx = parseFloat(frameHeightStr) * vh;
-    } else if (frameHeightStr.includes('px')) {
-        frameHeightPx = parseFloat(frameHeightStr);
-    }
-    
-    // Calculate offset to center frame around item
-    const offsetX = (itemWidth - frameWidthPx) / 2;
-    const offsetY = (itemHeight - frameHeightPx) / 2;
-    
-    // Store offset for later use during dragging
-    itemData.frameOffsetX = offsetX;
-    itemData.frameOffsetY = offsetY;
-    
-    frame.style.left = (itemX + offsetX) + 'px';
-    frame.style.top = (itemY + offsetY) + 'px';
-    
-    // Add to items array to track
-    itemData.frame = frame;
-    
-    // Trigger fade-in animation
-    frame.classList.add('fade-in');
+    tapeTemplate.addEventListener('mousedown', handleTapeMouseDown);
 }
 
-function positionFrame(itemData) {
-    if (!itemData.frame) return;
+function handleTapeMouseDown(e) {
+    // Create a new tape piece that will be dragged
+    const tapeTemplate = e.currentTarget;
+    const newTape = document.createElement('img');
+    newTape.className = 'tape-piece';
+    newTape.src = 'Images/Tape_Dots.png';
+    newTape.alt = 'Tape';
     
-    // Keep frame positioned behind item
-    itemData.frame.style.left = itemData.element.style.left;
-    itemData.frame.style.top = itemData.element.style.top;
+    // Position at the toolbar
+    const rect = tapeTemplate.getBoundingClientRect();
+    newTape.style.left = rect.left + 'px';
+    newTape.style.top = rect.top + 'px';
+    newTape.style.position = 'fixed';
+    newTape.style.zIndex = '1000';
+    newTape.style.pointerEvents = 'auto';
+    
+    document.getElementById('itemsContainer').appendChild(newTape);
+    
+    draggedTape = {
+        element: newTape,
+        startX: rect.left,
+        startY: rect.top
+    };
+    
+    // Calculate offset for smooth dragging
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    
+    document.addEventListener('mousemove', handleTapeMouseMove);
+    document.addEventListener('mouseup', handleTapeMouseUp);
+    
+    e.preventDefault();
+}
+
+function handleTapeMouseMove(e) {
+    if (!draggedTape) return;
+    
+    const x = e.clientX - offsetX;
+    const y = e.clientY - offsetY;
+    
+    draggedTape.element.style.left = x + 'px';
+    draggedTape.element.style.top = y + 'px';
+}
+
+function handleTapeMouseUp(e) {
+    if (!draggedTape) return;
+    
+    document.removeEventListener('mousemove', handleTapeMouseMove);
+    document.removeEventListener('mouseup', handleTapeMouseUp);
+    
+    // Keep the tape piece on the canvas
+    draggedTape.element.style.zIndex = '100';
+    
+    // Store it in the array so it persists
+    tapePieces.push(draggedTape);
+    
+    draggedTape = null;
 }
 
 // Initialize the game when the page loads
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeGame);
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeGame();
+        initializeTape();
+    });
 } else {
     initializeGame();
+    initializeTape();
 }

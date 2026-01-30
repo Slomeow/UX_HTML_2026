@@ -2,7 +2,10 @@ html, body {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', sans-serif;
-    background-color: rgb(249, 245, 219);
+    background-color: #fff7dc; 
+   // background-image: url('Images/692.jpg');
+   // background-size: cover;
+   // background-position: center;
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -25,7 +28,7 @@ html, body {
 }
 
 .drop-zone {
-    background-color: rgb(249, 245, 219);
+    background-color: rgba(249, 245, 219, 0.241);
     border: 2px solid rgb(229, 124, 140);
     border-radius: 20px;
     display: flex;
@@ -44,7 +47,7 @@ html, body {
 }
 
 .drop-zone.occupied {
-    background-color: rgb(255, 252, 204);
+    background-color: rgba(255, 252, 204, 0.332);
 }
 
 .items-container {
@@ -93,7 +96,8 @@ html, body {
     }
 }
 
-.frame-image {
+/* FRAME FUNCTIONALITY COMMENTED OUT */
+/* .frame-image {
     position: fixed;
     max-width: 50vw;
     max-height: 50vh;
@@ -104,7 +108,7 @@ html, body {
 }
 
 .frame-image.fade-in {
-    animation: fadeInSlow 3s ease-in-out forwards;
+    animation: fadeInSlow 10s ease-in-out forwards;
 }
 
 @keyframes fadeInSlow {
@@ -114,12 +118,15 @@ html, body {
     100% {
         opacity: 1;
     }
-}
+} */
 
 .item-label {
     position: absolute;
+    background-color: rgb(249, 245, 219);
+    padding: 10px;
+    border-radius: 15px;
     color: rgb(229, 124, 140);
-    font-size: 12px;
+    font-size: 12 px;
     font-weight: bold;
     text-align: center;
     white-space: pre-wrap;
@@ -128,6 +135,7 @@ html, body {
     display: none;
     pointer-events: none;
     line-height: 1.4;
+    z-index: 10;
 }
 
 .modal {
@@ -209,4 +217,45 @@ html, body {
 
 .cancel-btn:hover {
     background-color: rgb(160, 160, 160);
+}
+
+/* Toolbar for collage elements */
+.toolbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 10vh;
+    background-color: rgba(249, 245, 219, 0.95);
+    border-top: 0.2vh solid rgb(229, 124, 140);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2vw;
+    z-index: 500;
+}
+
+.toolbar-slot {
+    width: 8vw;
+    height: 8vh;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 0.2vh dashed rgb(229, 124, 140);
+    border-radius: 1vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tape-piece {
+    position: absolute;
+    width: 12vw;
+    height: 12vh;
+    object-fit: contain;
+    cursor: grab;
+    pointer-events: auto;
+    user-select: none;
+}
+
+.tape-piece:active {
+    cursor: grabbing;
 }
