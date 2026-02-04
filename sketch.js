@@ -2,10 +2,13 @@ let dropZones = [];
 let draggableItems = [];
 let draggedItem = null;
 let draggedTape = null;
+let draggedSquareFrame = null;
 let offsetX = 0;
 let offsetY = 0;
 let pendingZoneForName = null; // Track which zone needs a name
 let tapePieces = []; // Track all placed tape pieces
+let squareFrames = []; // Track all placed square frames
+let rotateMode = false; // Track if rotate mode is active
 
 const NUM_ZONES = 15;
 const NUM_ITEMS = 5;
@@ -482,7 +485,52 @@ function initializeTape() {
     tapeTemplate.addEventListener('mousedown', handleTapeMouseDown);
 }
 
+function initializeSquareFrame() {
+    const squareFrameTemplate = document.getElementById('squareFrameTemplate');
+    if (!squareFrameTemplate) return;
+    
+    squareFrameTemplate.addEventListener('mousedown', handleSquareFrameMouseDown);
+}
+
+function initializeRotateButton() {
+    const rotateBtn = document.getElementById('rotateBtn');
+    if (!rotateBtn) return;
+    
+    rotateBtn.addEventListener('click', () => {
+        rotateMode = !rotateMode;
+        rotateBtn.classList.toggle('active', rotateMode);
+        
+        // Update cursor for all placed tape pieces
+        tapePieces.forEach(tape => {
+            tape.element.style.cursor = rotateMode ? 'pointer' : 'grab';
+        });
+    });
+}
+
+function handleTapePieceClick(e) {
+    if (!rotateMode) return;
+    
+    const tapeElement = e.currentTarget;
+    const tapePiece = tapePieces.find(t => t.element === tapeElement);
+    
+    if (tapePiece) {
+        // Get current rotation or initialize to 0
+        if (!tapePiece.rotation) {
+            tapePiece.rotation = 0;
+        }
+        
+        // Rotate by 45 degrees
+        tapePiece.rotation = (tapePiece.rotation + 45) % 360;
+        tapePiece.element.style.transform = `rotate(${tapePiece.rotation}deg)`;
+    }
+    
+    e.stopPropagation();
+}
+
 function handleTapeMouseDown(e) {
+    // If in rotate mode, don't create new tape
+    if (rotateMode) return;
+    
     // Create a new tape piece that will be dragged
     const tapeTemplate = e.currentTarget;
     const newTape = document.createElement('img');
@@ -535,19 +583,111 @@ function handleTapeMouseUp(e) {
     // Keep the tape piece on the canvas
     draggedTape.element.style.zIndex = '100';
     
+    // Add click listener for rotation
+    draggedTape.element.addEventListener('click', handleTapePieceClick);
+    draggedTape.rotation = 0; // Initialize rotation
+    
     // Store it in the array so it persists
     tapePieces.push(draggedTape);
     
     draggedTape = null;
 }
 
-// Initialize the game when the page loads
+function handleSquareFrameMouseDown(e) {
+    // If in rotate mode, don't create new frame
+    if (rotateMode) return;
+    
+    // Create a new square frame that will be dragged
+    const frameTemplate = e.currentTarget;
+    const newFrame = document.createElement('img');
+    newFrame.className = 'square-frame-piece';
+    newFrame.src = 'Images/square_frame2.png';
+    newFrame.alt = 'Square Frame';
+    
+    // Position at the toolbar
+    const rect = frameTemplate.getBoundingClientRect();
+    newFrame.style.left = rect.left + 'px';
+    newFrame.style.top = rect.top + 'px';
+    newFrame.style.position = 'fixed';
+    newFrame.style.zIndex = '1000';
+    newFrame.style.pointerEvents = 'auto';
+    
+    document.getElementById('itemsContainer').appendChild(newFrame);
+    
+    draggedSquareFrame = {
+        element: newFrame,
+        startX: rect.left,
+        startY: rect.top
+    };
+    
+    // Calculate offset for smooth dragging
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    
+    document.addEventListener('mousemove', handleSquareFrameMouseMove);
+    document.addEventListener('mouseup', handleSquareFrameMouseUp);
+    
+    e.preventDefault();
+}
+
+function handleSquareFrameMouseMove(e) {
+    if (!draggedSquareFrame) return;
+    
+    const x = e.clientX - offsetX;
+    const y = e.clientY - offsetY;
+    
+    draggedSquareFrame.element.style.left = x + 'px';
+    draggedSquareFrame.element.style.top = y + 'px';
+}
+
+function handleSquareFrameMouseUp(e) {
+    if (!draggedSquareFrame) return;
+    
+    document.removeEventListener('mousemove', handleSquareFrameMouseMove);
+    document.removeEventListener('mouseup', handleSquareFrameMouseUp);
+    
+    // Keep the square frame on the canvas
+    draggedSquareFrame.element.style.zIndex = '100';
+    
+    // Add click listener for rotation
+    draggedSquareFrame.element.addEventListener('click', handleSquareFramePieceClick);
+    draggedSquareFrame.rotation = 0; // Initialize rotation
+    
+    // Store it in the array so it persists
+    squareFrames.push(draggedSquareFrame);
+    
+    draggedSquareFrame = null;
+}
+
+function handleSquareFramePieceClick(e) {
+    if (!rotateMode) return;
+    
+    const frameElement = e.currentTarget;
+    const framePiece = squareFrames.find(f => f.element === frameElement);
+    
+    if (framePiece) {
+        // Get current rotation or initialize to 0
+        if (!framePiece.rotation) {
+            framePiece.rotation = 0;
+        }
+        
+        // Rotate by 45 degrees
+        framePiece.rotation = (framePiece.rotation + 45) % 360;
+        framePiece.element.style.transform = `rotate(${framePiece.rotation}deg)`;
+    }
+    
+    e.stopPropagation();
+}
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initializeGame();
         initializeTape();
+        initializeSquareFrame();
+        initializeRotateButton();
     });
 } else {
     initializeGame();
     initializeTape();
+    initializeSquareFrame();
+    initializeRotateButton();
 }
