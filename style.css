@@ -367,9 +367,16 @@ p4{
 }
 
 .finish-icon {
-    font-size: 2.5rem;
+    font-size: 3rem;
     display: block;
     line-height: 1;
+    width: 5.5vw;
+    height: 5vh;
+    object-fit: contain;
+    display: block;
+    justify-content: center;
+    align-items: center;
+    padding 10px;
 }
 
 .toolbar-btn:hover {
