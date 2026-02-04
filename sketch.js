@@ -9,6 +9,18 @@ let pendingZoneForName = null; // Track which zone needs a name
 let tapePieces = []; // Track all placed tape pieces
 let squareFrames = []; // Track all placed square frames
 let rotateMode = false; // Track if rotate mode is active
+let paintMode = false; // Track if paint mode is active
+
+const PAINT_COLORS = [
+    'rgba(255, 182, 193, 0.6)',  // Light pink
+    'rgba(173, 216, 230, 0.6)',  // Light blue
+    'rgba(144, 238, 144, 0.6)',  // Light green
+    'rgba(255, 218, 185, 0.6)',  // Peach
+    'rgba(221, 160, 221, 0.6)',  // Plum
+    'rgba(255, 255, 224, 0.6)',  // Light yellow
+    'rgba(255, 192, 203, 0.6)',  // Pink
+    'rgba(176, 224, 230, 0.6)',  // Powder blue
+];
 
 const NUM_ZONES = 15;
 const NUM_ITEMS = 5;
@@ -73,6 +85,9 @@ function initializeGame() {
             occupied: false,
             item: null
         };
+        
+        // Add click listener for paint mode
+        zone.addEventListener('click', handleZoneClick);
         
         dropZones.push(zoneData);
         zonesGrid.appendChild(zone);
@@ -485,6 +500,13 @@ function initializeTape() {
     tapeTemplate.addEventListener('mousedown', handleTapeMouseDown);
 }
 
+function initializeTape2() {
+    const tape2Template = document.getElementById('tape2Template');
+    if (!tape2Template) return;
+    
+    tape2Template.addEventListener('mousedown', handleTape2MouseDown);
+}
+
 function initializeSquareFrame() {
     const squareFrameTemplate = document.getElementById('squareFrameTemplate');
     if (!squareFrameTemplate) return;
@@ -500,11 +522,132 @@ function initializeRotateButton() {
         rotateMode = !rotateMode;
         rotateBtn.classList.toggle('active', rotateMode);
         
+        // Disable paint mode if rotate is enabled
+        if (rotateMode && paintMode) {
+            paintMode = false;
+            const paintBtn = document.getElementById('paintBucketBtn');
+            if (paintBtn) paintBtn.classList.remove('active');
+        }
+        
         // Update cursor for all placed tape pieces
         tapePieces.forEach(tape => {
             tape.element.style.cursor = rotateMode ? 'pointer' : 'grab';
         });
     });
+}
+
+function initializePaintBucketButton() {
+    const paintBtn = document.getElementById('paintBucketBtn');
+    if (!paintBtn) return;
+    
+    paintBtn.addEventListener('click', () => {
+        paintMode = !paintMode;
+        paintBtn.classList.toggle('active', paintMode);
+        
+        // Disable rotate mode if paint is enabled
+        if (paintMode && rotateMode) {
+            rotateMode = false;
+            const rotateBtn = document.getElementById('rotateBtn');
+            if (rotateBtn) rotateBtn.classList.remove('active');
+        }
+        
+        // Update cursor for zones
+        dropZones.forEach(zone => {
+            zone.element.style.cursor = paintMode ? 'crosshair' : 'pointer';
+        });
+    });
+}
+
+function initializeFinishButton() {
+    const finishBtn = document.getElementById('finishBtn');
+    if (!finishBtn) return;
+    
+    finishBtn.addEventListener('click', downloadMoodboard);
+    
+    // Setup modal buttons
+    const downloadBtn = document.getElementById('downloadBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    
+    if (downloadBtn) downloadBtn.addEventListener('click', actuallyDownloadMoodboard);
+    if (restartBtn) restartBtn.addEventListener('click', restartMoodboard);
+}
+
+function downloadMoodboard() {
+    const container = document.querySelector('.container');
+    if (!container) return;
+    
+    // Create a temporary wrapper to capture the content
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'fixed';
+    wrapper.style.left = '-9999px';
+    wrapper.style.top = '-9999px';
+    wrapper.style.backgroundColor = 'rgba(225, 153, 80, 0.75)';
+    
+    // Clone the container and toolbar (minus the toolbar itself)
+    const clonedContent = document.querySelector('.container').cloneNode(true);
+    wrapper.appendChild(clonedContent);
+    document.body.appendChild(wrapper);
+    
+    html2canvas(wrapper, {
+        backgroundColor: 'rgba(255, 255, 255, 0.86)',
+        scale: 2,
+        allowTaint: true,
+        useCORS: true
+    }).then(canvas => {
+        // Store canvas for later download
+        window.moodboardCanvas = canvas;
+        
+        // Show preview in modal
+        const previewContainer = document.getElementById('previewContainer');
+        previewContainer.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL('image/png');
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        previewContainer.appendChild(img);
+        
+        // Show the modal
+        const modal = document.getElementById('finishModal');
+        modal.classList.remove('hidden');
+        
+        // Remove the temporary wrapper
+        document.body.removeChild(wrapper);
+    }).catch(error => {
+        console.error('Error capturing screenshot:', error);
+        document.body.removeChild(wrapper);
+    });
+}
+
+function actuallyDownloadMoodboard() {
+    if (!window.moodboardCanvas) return;
+    
+    const link = document.createElement('a');
+    link.href = window.moodboardCanvas.toDataURL('image/png');
+    link.download = `moodboard-${new Date().getTime()}.png`;
+    link.click();
+    
+    // Close modal and reset
+    const modal = document.getElementById('finishModal');
+    modal.classList.add('hidden');
+    window.moodboardCanvas = null;
+}
+
+function restartMoodboard() {
+    // Close modal
+    const modal = document.getElementById('finishModal');
+    modal.classList.add('hidden');
+    window.moodboardCanvas = null;
+    
+    // Reset everything
+    location.reload();
+}
+
+function handleZoneClick(e) {
+    if (!paintMode) return;
+    
+    const zone = e.currentTarget;
+    const randomColor = PAINT_COLORS[Math.floor(Math.random() * PAINT_COLORS.length)];
+    zone.style.backgroundColor = randomColor;
 }
 
 function handleTapePieceClick(e) {
@@ -538,8 +681,28 @@ function handleTapeMouseDown(e) {
     newTape.src = 'Images/Tape_Dots.png';
     newTape.alt = 'Tape';
     
+    createAndDragTape(newTape, e);
+}
+
+function handleTape2MouseDown(e) {
+    // If in rotate mode, don't create new tape
+    if (rotateMode) return;
+    
+    // Create a new tape piece that will be dragged
+    const tape2Template = e.currentTarget;
+    const newTape = document.createElement('img');
+    newTape.className = 'tape-piece';
+    newTape.src = 'Images/Tape_2.png';
+    newTape.alt = 'Tape 2';
+    
+    createAndDragTape(newTape, e);
+}
+
+function createAndDragTape(newTape, e) {
+    const template = e.currentTarget;
+    
     // Position at the toolbar
-    const rect = tapeTemplate.getBoundingClientRect();
+    const rect = template.getBoundingClientRect();
     newTape.style.left = rect.left + 'px';
     newTape.style.top = rect.top + 'px';
     newTape.style.position = 'fixed';
@@ -682,12 +845,18 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initializeGame();
         initializeTape();
+        initializeTape2();
         initializeSquareFrame();
         initializeRotateButton();
+        initializePaintBucketButton();
+        initializeFinishButton();
     });
 } else {
     initializeGame();
     initializeTape();
+    initializeTape2();
     initializeSquareFrame();
     initializeRotateButton();
+    initializePaintBucketButton();
+    initializeFinishButton();
 }

@@ -4,6 +4,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset="utf-8" />
     <title>Name my Art</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -16,17 +17,31 @@
     
     <!-- Toolbar -->
     <div class="toolbar">
-      <div class="toolbar-header">Name My Art!</div>
+      <!-- <div class="toolbar-header">Name My Art!</div> -->
       <p3> Tool Bar</p3>
       <div class="toolbar-slot">
         <img class="tape-piece toolbar-tape" id="tapeTemplate" src="Images/Tape_Dots.png" alt="Tape" />
       </div>
       <div class="toolbar-slot">
+        <img class="tape-piece toolbar-tape" id="tape2Template" src="Images/Tape_2.png" alt="Tape 2" />
+      </div>
+      <div class="toolbar-slot">
         <img class="square-frame-piece toolbar-frame" id="squareFrameTemplate" src="Images/square_frame2.png" alt="Square Frame" />
+      </div>
+      <div class="edit-mode-section">
+        <p3>Edit Mode</p3>
       </div>
       <button id="rotateBtn" class="toolbar-btn" aria-label="Rotate">
         <p4>Rotate</p4>
         <img class="rotate-icon" src="Images/rotate.png" alt="Rotate" />
+      </button>
+      <button id="paintBucketBtn" class="toolbar-btn" aria-label="Paint">
+        <p4>Paint</p4>
+        <img class="paint-bucket-icon" src="Images/Paint_Icon.png" alt="Paint Bucket" />
+      </button>
+      <button id="finishBtn" class="toolbar-btn" aria-label="Finish">
+        <p4>Finish</p4>
+        <span class="finish-icon">📸</span>
       </button>
     </div>
     
@@ -38,6 +53,18 @@
         <div class="modal-buttons">
           <button id="submitBtn" class="modal-btn submit-btn">Submit</button>
          <!--<button id="cancelBtn" class="modal-btn cancel-btn">Cancel</button> -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Finish Preview Modal -->
+    <div id="finishModal" class="modal hidden">
+      <div class="modal-content finish-modal-content">
+        <h2>Your Collage</h2>
+        <div id="previewContainer" class="preview-container"></div>
+        <div class="modal-buttons">
+          <button id="downloadBtn" class="modal-btn submit-btn">Download</button>
+          <button id="restartBtn" class="modal-btn cancel-btn">Restart?</button>
         </div>
       </div>
     </div>

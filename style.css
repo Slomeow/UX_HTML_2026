@@ -60,7 +60,7 @@ p2 {
 }
 
 .drop-zone:hover {
-    background-color: rgb(188, 188, 188);
+    background-color: rgba(87, 84, 84, 0.2);
 }
 
 .drop-zone.occupied {
@@ -165,13 +165,13 @@ p2 {
 }
 
 p3 {
-    background-color: rgba(229, 124, 140, 0.8);
+    background-color: rgba(20, 8, 54, 0.95);
     padding: 10px 20px;
     border-radius: 10px;
-    border-style: dotted;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-style: none;
+  //  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     color: rgb(249, 245, 219);
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: bold;
     z-index: 1000;
 }
@@ -209,6 +209,31 @@ p4{
     margin-top: 0;
     color: rgb(229, 124, 140);
     margin-bottom: 20px;
+}
+
+.finish-modal-content {
+    max-width: 80vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.preview-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    max-height: 60vh;
+    overflow: auto;
+}
+
+.preview-container img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 #nameInput {
@@ -267,32 +292,46 @@ p4{
     top: 0;
     height: 100vh;
     width: 12vw;
-    background-color: rgba(249, 245, 219, 0.95);
-    border-left: 0.2vh solid rgb(229, 124, 140);
+    background-color: rgba(20, 8, 54, 0.95);
+    box-shadow: -5px 4px 8px rgba(0, 0, 0, 0.3);
+    border-left: 8px double rgb(229, 124, 140);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 5vw;
+    gap: 3vw;
     padding-top: 2vh;
+    padding-left: 10px;
+    padding-right: 10px;
     z-index: 500;
 }
 
-.toolbar-header {
+/*.toolbar-header {
     background-color: rgba(229, 124, 140, 0.8);
     padding: 10px 16px;
     border-radius: 10px;
-    border-style: dotted;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-style: solid;
+   // box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     color: rgb(249, 245, 219);
     font-size: 2rem;;
     font-weight: bold;
     text-align: center;
+} */
+
+.edit-mode-section {
+    width: 100%;
+    padding-top: 1vh;
+    padding-bottom: 0;
+    border-top: 8px double rgb(229, 124, 140);
+    /*border-bottom: 10px solid rgb(229, 124, 140);*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .toolbar-btn {
-    padding: 1vw 1vh;
-    font-size: 1.5vh;
+    padding: 1vw 0vh;
+    font-size: 1.2vh;
     font-weight: bold;
     border: 0.2vh solid rgb(229, 124, 140);
     border-radius: 1vw;
@@ -304,11 +343,33 @@ p4{
 
 .rotate-icon {
     width: 5.5vw;
-    height: 2.5vw;
+    height: 5vh;
     object-fit: contain;
     display: block;
     justify-content: center;
     align-items: center;
+}
+#rotateBtn {
+    margin-top: -2vw;
+}
+#paintBucketBtn {
+    margin-top: -2vw;
+}
+.paint-bucket-icon {
+    width: 5.5vw;
+    height: 5vh;
+    object-fit: contain;
+    font-size: 2.5rem;
+    display: block;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+}
+
+.finish-icon {
+    font-size: 2.5rem;
+    display: block;
+    line-height: 1;
 }
 
 .toolbar-btn:hover {
@@ -324,10 +385,10 @@ p4{
 }
 
 .toolbar-slot {
-    width: 8vw;
-    height: 10vh;
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 0.2vh dashed rgb(229, 124, 140);
+    width: 0vw;
+    height: 5vh;
+    background-color: rgba(255, 255, 255, 0);
+    border: 0.2vh none rgb(229, 124, 140);
     border-radius: 1vw;
     display: flex;
     align-items: center;
@@ -351,8 +412,8 @@ p4{
 
 .square-frame-piece {
     position: absolute;
-    width: 15vw;
-    height: 15vh;
+    width: 16vw;
+    height: 16vh;
     object-fit: contain;
     cursor: grab;
     pointer-events: auto;
