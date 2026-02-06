@@ -24,16 +24,16 @@ const PAINT_COLORS = [
 
 const NUM_ZONES = 15;
 const NUM_ITEMS = 5;
-const ITEM_IMAGES = ['Images/IMG_5369.png', 'Images/Chosen.png', 'Images/MartinGoesOutsideScan.png', 'Images/CirCat1.png'];
+const ITEM_IMAGES = ['Images/Bunprint3.png', 'Images/Chosen.png', 'Images/MartinGoesOutsideScan.png', 'Images/CirCat1.png', 'Images/IMG_5369.png'];
 
 // Metadata for each image
 const IMAGE_METADATA = {
-    'Images/IMG_5369.png': {
-        dimensions: '5 x 5',
-        medium: 'pixel art',
-        year: '2024',
-        frame: 'Images/Square_frame2.png',
-        frameWidth: '40vw',
+    'Images/Bunprint3.png': {
+        dimensions: '9 x 12',
+        medium: 'Linocut print',
+        year: '2026',
+        frame: 'Images/Portrait_frame1.png',
+        frameWidth: '50vw',
         frameHeight: '40vh'
     },
     'Images/Chosen.png': {
@@ -45,20 +45,28 @@ const IMAGE_METADATA = {
         frameHeight: '35vh'
     },
     'Images/MartinGoesOutsideScan.png': {
-        dimensions: '5 x 10',
-        medium: 'oil pastel',
+        dimensions: '24 x 12',
+        medium: 'Screenprinted zine',
         year: '2025',
         frame: 'Images/Portrait_frame1.png',
         frameWidth: '16vw',
         frameHeight: '26vh'
     },
     'Images/CirCat1.png': {
-        dimensions: '8 x 8',
-        medium: 'digital art',
+        dimensions: '12 x 8',
+        medium: 'Copperplate Intaglio',
         year: '2025',
         frame: 'Images/Portrait_frame1.png',
         frameWidth: '16vw',
         frameHeight: '26vh'
+    },
+    'Images/IMG_5369.png': {
+        dimensions: '96 x 96px',
+        medium: 'Pixel art',
+        year: '2025',
+        frame: 'Images/Portrait_frame1.png',
+        frameWidth: '16vw',
+        frameHeight: '10vh'
     }
 };
 
@@ -844,7 +852,6 @@ function handleSquareFramePieceClick(e) {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initializeStartButton();
-        initializeGame();
         initializeTape();
         initializeTape2();
         initializeSquareFrame();
@@ -854,7 +861,6 @@ if (document.readyState === 'loading') {
     });
 } else {
     initializeStartButton();
-    initializeGame();
     initializeTape();
     initializeTape2();
     initializeSquareFrame();
@@ -877,5 +883,8 @@ function initializeStartButton() {
         const mainToolbar = document.getElementById('mainToolbar');
         if (mainContainer) mainContainer.style.display = 'flex';
         if (mainToolbar) mainToolbar.style.display = 'flex';
+
+        // Now that layout is visible, initialize grid/items
+        initializeGame();
     });
 }

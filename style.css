@@ -129,8 +129,8 @@ p2 {
 
 .draggable-item {
     position: absolute;
-    max-width: 15vw;
-    max-height: 20vh;
+    max-width: 25vw;
+    max-height: 25vh;
     border: 2px solid white;
     border-radius: 8px;
     cursor: grab;
