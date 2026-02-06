@@ -843,6 +843,7 @@ function handleSquareFramePieceClick(e) {
 }
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+        initializeStartButton();
         initializeGame();
         initializeTape();
         initializeTape2();
@@ -852,6 +853,7 @@ if (document.readyState === 'loading') {
         initializeFinishButton();
     });
 } else {
+    initializeStartButton();
     initializeGame();
     initializeTape();
     initializeTape2();
@@ -859,4 +861,21 @@ if (document.readyState === 'loading') {
     initializeRotateButton();
     initializePaintBucketButton();
     initializeFinishButton();
+}
+
+function initializeStartButton() {
+    const startBtn = document.getElementById('startBtn');
+    if (!startBtn) return;
+    
+    startBtn.addEventListener('click', () => {
+        // Hide landing screen
+        const landingScreen = document.getElementById('landingScreen');
+        if (landingScreen) landingScreen.style.display = 'none';
+        
+        // Show main content
+        const mainContainer = document.getElementById('mainContainer');
+        const mainToolbar = document.getElementById('mainToolbar');
+        if (mainContainer) mainContainer.style.display = 'flex';
+        if (mainToolbar) mainToolbar.style.display = 'flex';
+    });
 }
