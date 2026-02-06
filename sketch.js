@@ -30,7 +30,7 @@ const ITEM_IMAGES = ['Images/Bunprint3.png', 'Images/Chosen.png', 'Images/Martin
 const IMAGE_METADATA = {
     'Images/Bunprint3.png': {
         dimensions: '9 x 12',
-        medium: 'Linocut print',
+        medium: 'linocut print',
         year: '2026',
         frame: 'Images/Portrait_frame1.png',
         frameWidth: '50vw',
@@ -46,7 +46,7 @@ const IMAGE_METADATA = {
     },
     'Images/MartinGoesOutsideScan.png': {
         dimensions: '24 x 12',
-        medium: 'Screenprinted zine',
+        medium: 'screenprint',
         year: '2025',
         frame: 'Images/Portrait_frame1.png',
         frameWidth: '16vw',
@@ -54,7 +54,7 @@ const IMAGE_METADATA = {
     },
     'Images/CirCat1.png': {
         dimensions: '12 x 8',
-        medium: 'Copperplate Intaglio',
+        medium: 'intaglio etching',
         year: '2025',
         frame: 'Images/Portrait_frame1.png',
         frameWidth: '16vw',
@@ -62,8 +62,8 @@ const IMAGE_METADATA = {
     },
     'Images/IMG_5369.png': {
         dimensions: '96 x 96px',
-        medium: 'Pixel art',
-        year: '2025',
+        medium: 'pixel art',
+        year: '2024',
         frame: 'Images/Portrait_frame1.png',
         frameWidth: '16vw',
         frameHeight: '10vh'
